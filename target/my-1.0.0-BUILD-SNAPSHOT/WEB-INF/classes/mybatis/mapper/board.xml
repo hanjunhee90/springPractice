@@ -99,12 +99,12 @@
 	</insert>
 	<!-- 댓글 삭제 -->
 	<update id="delReply" parameterType="String">
-	
+		
 		UPDATE replys
-		SET use_yn = 'N'
+		SET use_yn ='N'
 		WHERE reply_no = #{replyNo}
-	
-	</update>
+		
+	</update>	
 	
 
 </mapper>
