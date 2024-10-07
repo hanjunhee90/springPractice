@@ -10,9 +10,16 @@
 	<select id="loginMember" parameterType="MemberVO" resultType="MemberVO">
 		SELECT mem_id
      		 , mem_nm
+     		 , mem_pw
+     		 , profile_img
 		FROM members
 		WHERE use_yn = 'Y'
 		AND mem_id = #{memId}
-		AND mem_pw = #{memPw}
 	</select>
+	
+	<update id="profileUpload" parameterType="MemberVO">
+		UPDATE members
+		SET profile_img = #{profileImg}
+		WHERE mem_id = #{memId}
+	</update>
 </mapper>

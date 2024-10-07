@@ -69,13 +69,15 @@
                 <div class="row justify-content-center pt-1">
                 	<div class="col-lg-8 col-xl-7">
                 		<table class="table">
-                			<tbody>
+                			<tbody id="replyBody">
                 				<c:forEach items="${replyList }" var="reply">
                 					<tr id="${reply.replyNo }">
-                						<td>${reply.replyNo }</td>
                 						<td>${reply.replyContent }</td>
                 						<td>${reply.memNm }</td>
                 						<td>${reply.replyDate }</td>
+                						<c:if test="${sessionScope.login.memId == reply.memId }">
+                							<td><a onclick="fn_del('${reply.replyNo}')">X</a> </td>
+                						</c:if>
                 					</tr>
                 				</c:forEach>
                 			</tbody>
@@ -99,25 +101,55 @@
 			}
 			let sendData = JSON.stringify({
 				  memId:memId
-				, boardNo:boardNo
+				, boardNo:parseInt(boardNo)
 				, replyContent:msg
 			});
 			console.log(sendData);
 			$.ajax({
 				 url : '<c:url value="/writeReplyDo" />'
 				,type : 'POST'
-				,contentType : 'application/json'
-				,dataType : 'json'
+				,contentType: 'application/json'
+				,dataType :'json'
 				,data : sendData
 				,success:function(res){
 					console.log('응답');
 					console.log(res);
+					let str = "";
+					str +="<tr id='"+res.replyNo+"'>";
+					str +="<td>" +res.replyContent + "</td>";
+					str +="<td>" +res.memNm + "</td>";
+					str +="<td>" +res.replyDate + "</td>";
+					str +="<td><a onclick='fn_del(\""+res.replyNo+"\")'>X</a></td>";
+					str +="</tr>";
+					$("#replyBody").append(str);
 				}
 				,error : function(e){
 					console.log(e);
 				}
 			});
 		}
+		
+		function fn_del(p_replyNo){
+    		if(confirm("정말로 삭제 하시겠습니까?!")){
+    			
+    			$.ajax({
+    				 url : '<c:url value="/delReplyDo" />'
+    				,type: 'POST'
+    				,data: JSON.stringify({"replyNo": p_replyNo})
+    				,contentType:'application/json'
+    				,dataType : "text"
+    				,success:function(res){
+    					if(res == 'success'){
+    						$("#" + p_replyNo).remove();
+    					}
+    				},error:function(e){
+    					console.log(e);
+    				}
+    			});
+    			
+    		}
+    	}
+
 	</script>
 	<jsp:include page="/WEB-INF/inc/footer.jsp"></jsp:include>
 
