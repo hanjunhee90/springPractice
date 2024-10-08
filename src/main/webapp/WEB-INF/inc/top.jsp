@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
 <script src="https://code.jquery.com/jquery-3.6.1.js"></script>
 <!-- Core theme CSS (includes Bootstrap)-->
-<link href="css/styles.css" rel="stylesheet" />
+<link href="${pageContext.request.contextPath}/css/styles.css" rel="stylesheet" />
  <!-- Navigation-->
 <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
 	<div class="container">
