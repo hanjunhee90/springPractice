@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
 <script src="https://code.jquery.com/jquery-3.6.1.js"></script>
 <!-- Core theme CSS (includes Bootstrap)-->
-<link href="css/styles.css" rel="stylesheet" />
+<link href="${pageContext.request.contextPath}/css/styles.css" rel="stylesheet" />
  <!-- Navigation-->
 <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
 	<div class="container">
@@ -27,7 +27,7 @@
 					<li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="${pageContext.request.contextPath}/registView">회원가입</a></li>
 				</c:if>
 				<c:if test="${sessionScope.login != null}">
-					<li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#">${sessionScope.login.memId } 님</a></li>
+					<li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="${pageContext.request.contextPath}/mypage">${sessionScope.login.memId } 님</a></li>
 					<li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="${pageContext.request.contextPath}/logoutDo">로그아웃</a></li>
 				</c:if>
 			</ul>

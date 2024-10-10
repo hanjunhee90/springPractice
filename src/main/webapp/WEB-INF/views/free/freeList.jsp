@@ -17,6 +17,8 @@
 				<div class="row g-0 justify-content-md-center">
 					<div class="col-auto col-sm-5 mb-3">
 						<form action="<c:url value="/free/freeList" />" name="search" method="post">
+							<input type="hidden" name="curPage" id="curPage" value="${searchVO.curPage }">
+							<input type="hidden" name="rowSizePerPage" value="${searchVO.rowSizePerPage }">
 							<div class="input-group">
 								<div class="col-sm-2">
 									<select id="id_searchType" name="searchType" class="form-control input-sm">
@@ -50,12 +52,21 @@
 				<div class="row justify-content-md-end">
 					<div class="col-sm-2">
 						<div class="input-group">
+							
+							<label class="form-control input-sm">총${searchVO.totalRowCount} 건</label>
+							<select id="rowSizePerPage" class="form-control">
+								<c:forEach var="i" begin="10" end="50" step="10">
+									<option value="${i}" ${searchVO.rowSizePerPage eq i ? "selected='selected'" : "" }>
+										${i}
+									</option>
+								</c:forEach>
+							</select>
 						</div>	
 					</div>
 				</div>
 				<!-- END : 목록건수 및 새글쓰기 버튼  -->
 			</div>
-			<table class="table table-striped table-bordered table-hover">
+			<table class="table table-striped table-bordered table-hover mt-3">
 				<colgroup>
 					<col width="10%" />
 					<col width="15%" />
@@ -70,6 +81,16 @@
 					</tr>
 				</thead>
 				<tbody>
+					<c:forEach items="${freeList }" var="free">
+						<tr>
+							<td>${free.boNo }</td>
+							<td>${free.boCategoryNm }</td>
+							<td>${free.boTitle }</td>
+							<td>${free.boWriter }</td>
+							<td>${free.boModDate }</td>
+							<td>${free.boHit }</td>
+						</tr>
+					</c:forEach>
 				</tbody>
 			
 			</table>
@@ -79,6 +100,39 @@
 			<!-- START : 페이지네이션  -->
 			<nav aria-label="Page navigation example">
 				<ul class="pagination justify-content-center">
+				<!-- prev -->
+				<c:if test="${searchVO.firstPage != 1 }">
+					<li class="page-item">
+						<a class="page-link" aria-label="Previous" href="#" data-page="${searchVO.firstPage-1}">
+							<span aria-hidden="true">&laquo;</span>
+						</a>
+					</li>
+				</c:if>
+				<!-- prev -->
+				<!-- paging -->
+					<c:forEach begin="${searchVO.firstPage }" end="${searchVO.lastPage }" var="i">
+						<c:if test="${searchVO.curPage != i }">
+							<li class="page-item">
+								<a class="page-link" href="#" data-page="${i}">${i}</a>
+							</li>
+						</c:if>
+						<c:if test="${searchVO.curPage == i }">
+							<li class="page-item active">
+								<a class="page-link" href="#" data-page="${i}">${i}</a>
+							</li>
+						</c:if>
+					</c:forEach>
+				<!-- paging -->
+				<!-- next -->
+				<c:if test="${searchVO.lastPage != searchVO.totalPageCount }">
+					<li class="page-item">
+						<a class="page-link" aria-label="Next" href="#" data-page="${searchVO.lastPage+1}">
+							<span aria-hidden="true">&raquo;</span>
+						</a>
+					</li>
+				</c:if>
+				<!-- next -->
+				
 				</ul>
 			</nav>
 			<!-- END : 페이지네이션  -->
@@ -89,7 +143,19 @@
 </body>
 <script type="text/javascript">
 
-	$(document).ready(function(){       
+	$(document).ready(function(){
+		
+		$("#rowSizePerPage").change(function(){
+			$("#curPage").val(1);
+			$("input[name='rowSizePerPage']").val($(this).val());
+			$("form[name='search']").submit();
+		});
+		
+		$("ul.pagination li a[data-page]").click(function(e){
+			e.preventDefault();
+			$("#curPage").val($(this).data('page'));
+			$("form[name='search']").submit();
+		});
 	});
 
 </script>
