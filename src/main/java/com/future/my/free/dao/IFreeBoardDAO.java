@@ -14,5 +14,11 @@ public interface IFreeBoardDAO {
 	public int getTotalRowCount(FreeBoardSearchVO searchVO);
 	// 자우게시판 조회
 	public ArrayList<FreeBoardVO> getBoardList(FreeBoardSearchVO searchVO);
+	// 게시글 조회
+	public FreeBoardVO getBoard(int boNo);
+	// 게시글 작성
+	public int insertFreeBoard(FreeBoardVO vo);
+	// 조회수 증가
+	public int updateHit(int boNo);
 
 }

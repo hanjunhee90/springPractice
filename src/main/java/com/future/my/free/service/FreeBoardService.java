@@ -31,5 +31,25 @@ public class FreeBoardService {
 		searchVO.pageSetting();
 		System.out.println(searchVO);
 	}
+	
+	public FreeBoardVO getBoard(int boNo) throws Exception {
+		FreeBoardVO board = dao.getBoard(boNo);
+		if(board == null) {
+			throw new Exception();
+		}
+		// 조회수 증가
+		dao.updateHit(boNo);
+		
+		// 조회수 증가한걸 다시 조회
+		//board = dao.getBoard(boNo);
+		return board;
+	}
+	
+	public void insertFreeBoard(FreeBoardVO vo) throws Exception {
+		int result = dao.insertFreeBoard(vo);
+		if(result == 0) {
+			throw new Exception();
+		}
+	}
 
 }
