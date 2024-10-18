@@ -83,7 +83,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 		System.out.println(userId + "/" + roomNo);
 		
 		Map<String, Object> message = new HashMap<String, Object>();
-		message.put("type", "notification");
+		message.put("type", "notification");  // notification 임의의 이름 - 입장했는지 확인하려고
 		message.put("message", userId + "님이 입장하셧습니다.");
 		messagingTemplate.convertAndSend("/subscribe/chat/" + roomNo, message);
 	}

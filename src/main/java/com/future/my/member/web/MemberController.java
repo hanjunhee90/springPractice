@@ -10,9 +10,13 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,10 +24,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.future.my.common.exception.BizException;
 import com.future.my.common.service.CodeService;
+import com.future.my.common.valid.Login;
 import com.future.my.common.vo.CodeVO;
+import com.future.my.common.vo.MessageVO;
 import com.future.my.member.service.MemberService;
 import com.future.my.member.vo.MemberVO;
+import com.future.my.member.vo.QuestionVO;
 
 @Controller
 public class MemberController {
@@ -51,29 +59,60 @@ public class MemberController {
 	
 
 	@RequestMapping("/registView")
-	public String registView() {
+	public String registView(@ModelAttribute("member") MemberVO member) {
 		return "member/registView";
 	}
 	
 	@RequestMapping("/registDo")
-	public String registDo(MemberVO vo) {
-		vo.setMemPw(passwordEncoder.encode(vo.getMemPw()));
-		System.out.println(vo);
-		try {
-			memberService.registMember(vo);
-		} catch (Exception e) {
-			e.printStackTrace();
+	public String registDo( @Validated @ModelAttribute("member") MemberVO member
+							, BindingResult result
+							, Model model) {
+		if(result.hasErrors()) {
+			// @Validated의 member의 전달받은 매개변수가 조건에 맞지 않으면 hasErros True
+			return "member/registView";
 		}
-		return "redirect:/";
+		
+		member.setMemPw(passwordEncoder.encode(member.getMemPw()));
+		System.out.println(member);
+
+		try {
+			memberService.registMember(member);
+		} catch (DuplicateKeyException e) {
+			MessageVO messageVO = new MessageVO(false, "회원가입", "중복 아이디 입니다.!!", "/registView", "회원가입");
+			model.addAttribute("messageVO", messageVO);
+			return "member/registView";
+		} catch (DataAccessException e) {
+			MessageVO messageVO = new MessageVO(false, "회원가입", "잘못된 입력 입니다.!!", "/registView", "회원가입");
+			model.addAttribute("messageVO", messageVO);
+			return "member/registView";
+		} catch (BizException e) {
+			MessageVO messageVO = new MessageVO(false, "회원가입", "회원가입 안됨!!", "/registView", "회원가입");
+			model.addAttribute("messageVO", messageVO);
+			return "member/registView";
+		}
+		
+		MessageVO messageVO = new MessageVO(true, "회원가입", "회원가입 성공!!", "/loginView", "로그인");
+		// 리다이렉트시 데이터 전달
+		model.addAttribute("messageVO", messageVO);
+
+		return "forward:/";
 	}
 	
 	@RequestMapping("/loginView")
-	public String loginView() {
+	public String loginView(@ModelAttribute("member") MemberVO member) {
 		return "member/loginView";
 
 	}
 	@RequestMapping("/loginDo")
-	public String loginDo(MemberVO vo, boolean remember, HttpSession session, HttpServletResponse response) throws Exception {
+	public String loginDo(MemberVO vo, boolean remember
+						, HttpSession session, HttpServletResponse response
+						, @Validated(Login.class) @ModelAttribute("member") MemberVO member
+						, BindingResult result) throws Exception {
+		
+		if(result.hasErrors()) {
+			return "member/loginView";
+		}
+		
 		System.out.println(vo);
 		MemberVO login = memberService.loginMember(vo);
 		
@@ -146,5 +185,12 @@ public class MemberController {
 		 */
 		
 		return "member/test";
+	}
+	
+	@RequestMapping("/survey")
+	public String survey(Model model) {
+		ArrayList<QuestionVO> qList = memberService.getSurvey();
+		model.addAttribute("qList",qList);
+		return "member/survey";
 	}
 }

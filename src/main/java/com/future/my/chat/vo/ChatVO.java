@@ -4,11 +4,18 @@ public class ChatVO {
 	
 	private int chatNo;
 	private String memId;
-	private String memName;
+	private String memNm;
 	private int roomNo;
 	private String chatMsg;
 	private String sendDate;
+	private String profileImg;
 	
+	public String getProfileImg() {
+		return profileImg;
+	}
+	public void setProfileImg(String profileImg) {
+		this.profileImg = profileImg;
+	}
 	public int getChatNo() {
 		return chatNo;
 	}
@@ -21,11 +28,11 @@ public class ChatVO {
 	public void setMemId(String memId) {
 		this.memId = memId;
 	}
-	public String getMemName() {
-		return memName;
+	public String getMemNm() {
+		return memNm;
 	}
-	public void setMemName(String memName) {
-		this.memName = memName;
+	public void setMemNm(String memNm) {
+		this.memNm = memNm;
 	}
 	public int getRoomNo() {
 		return roomNo;
@@ -47,10 +54,10 @@ public class ChatVO {
 	}
 	@Override
 	public String toString() {
-		return "ChatVO [chatNo=" + chatNo + ", memId=" + memId + ", memName=" + memName + ", roomNo=" + roomNo
-				+ ", chatMsg=" + chatMsg + ", sendDate=" + sendDate + "]";
+		return "ChatVO [chatNo=" + chatNo + ", memId=" + memId + ", memNm=" + memNm + ", roomNo=" + roomNo
+				+ ", chatMsg=" + chatMsg + ", sendDate=" + sendDate + ", profileImg=" + profileImg + "]";
 	}
-	
+
 	
 	
 

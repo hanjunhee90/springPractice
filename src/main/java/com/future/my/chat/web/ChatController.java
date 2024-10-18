@@ -1,6 +1,8 @@
 package com.future.my.chat.web;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -41,9 +43,12 @@ public class ChatController {
 	
 	@RequestMapping("/chatView")
 	public String chatView(Model model, int roomNo) {
-		
+		String imagePath = "/springStudy/src/main/webapp/resources/assets/img/non.png"; // 기본 이미지 경로 설정
 		System.out.println(roomNo);
+		ArrayList<ChatVO> chatList = chatService.getChatList(roomNo);
+
 		model.addAttribute("roomNo",roomNo);
+		model.addAttribute("chatList", chatList);
 		return "chat/chatView";
 	}
 	
@@ -52,6 +57,9 @@ public class ChatController {
 	@SendTo("/subscribe/chat/{roomNo}")
 	public ChatVO broadcasting(ChatVO chatVO) {
 		// chatlog 기록
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+		chatVO.setSendDate(sdf.format(new Date()));
+		chatService.insertChat(chatVO);
 		return chatVO;
 	}
 

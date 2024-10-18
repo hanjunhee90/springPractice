@@ -4,14 +4,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.future.my.common.exception.BizException;
 import com.future.my.member.dao.IMemberDAO;
 import com.future.my.member.vo.MemberVO;
+import com.future.my.member.vo.QuestionVO;
 
 @Service  // 비지니스 로직을 처리하는 계층
 public class MemberService {
@@ -20,10 +25,12 @@ public class MemberService {
 	@Autowired
 	IMemberDAO dao;
 	
-	public void registMember(MemberVO vo) throws Exception {
+	public void registMember(MemberVO vo) throws DuplicateKeyException  // db 중복오류 잡아줌
+											   , DataAccessException    // db 오류
+											   , BizException {         // 비지니스 오류
 		int result = dao.registMember(vo);
 		if(result == 0) {
-			throw new Exception();
+			throw new BizException();
 		}
 	}
 	
@@ -61,5 +68,9 @@ public class MemberService {
 			
 		return dbPath;
 		
+	}
+	
+	public ArrayList<QuestionVO> getSurvey(){
+		return dao.getSurvey();
 	}
 }
