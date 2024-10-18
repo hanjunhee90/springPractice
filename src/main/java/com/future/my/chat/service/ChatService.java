@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.future.my.chat.dao.IChatDAO;
+import com.future.my.chat.vo.ChatVO;
 import com.future.my.chat.vo.RoomVO;
 
 @Service
@@ -21,6 +22,16 @@ public class ChatService {
 	// selectkey를 사용하면 void이여도 자동으로 roomVO에 roomNo 가 리턴됨
 	public void createRoom(RoomVO roomVO) {
 		dao.createRoom(roomVO);
+	}
+	
+	// 대화 기록
+	public ArrayList<ChatVO> getChatList(int roomNo){
+		return dao.getChatList(roomNo);
+	}
+	// 대화 저장
+	public void insertChat(ChatVO vo) {
+		dao.insertChat(vo);
+		
 	}
 
 }

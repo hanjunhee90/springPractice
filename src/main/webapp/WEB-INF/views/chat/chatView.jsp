@@ -71,26 +71,39 @@
 						</div>
 						<div class="content chatcontent border border-secondary" data-room-no="" >
 							<div id="list-guestbook" class="">
+								<c:forEach items="${chatList }" var="chat">
 									<!-- 내 채팅일 경우 -->
+									<c:if test="${sessionScope.login.memId eq chat.memId }">
 									<ul>
 										<li data-no="" class="me pr-2">
-											<strong class="">내 이름</strong>
+											<strong class="">${chat.memId }(${chat.memNm })</strong>
+											<img src="${chat.profileImg }"
+												id="myImage" class="rounded-circle img-thumbnail shadow-sm"
+												width="50" style="cursor: pointer;">
+
 											<div class="me">
-												<p class='myChat chat-box text-left p-3'>메세지 ^^ </p>
-	    											<strong style="display : inline;" class="align-self-end">2024-10-14 14:20:05</strong>
+												<p class='myChat chat-box text-left p-3'>${chat.chatMsg }</p>
+	    											<strong style="display : inline;" class="align-self-end">${chat.sendDate }</strong>
 											</div>
 										</li>
 									</ul>
+									</c:if>
 									<!-- 다른사람의 채팅일 경우 -->
+									<c:if test="${sessionScope.login.memId ne chat.memId }">
 									<ul>
 										<li data-no="" class="pl-2">
-											<strong>다른 사람 이름</strong>
+											<strong>${chat.memId }(${chat.memNm })</strong>
+											<img src="${chat.profileImg }"
+												id="myImage" class="rounded-circle img-thumbnail shadow-sm"
+												width="50" style="cursor: pointer;">
 											<div>
-												<p class='chat-box bg-light p-3'>메세지 ^_____^</p>
-												<strong style="display : inline;" class="align-self-center">2024-10-14 14:20:05</strong>
+												<p class='chat-box bg-light p-3'>${chat.chatMsg }</p>
+												<strong style="display : inline;" class="align-self-center">${chat.sendDate }</strong>
 											</div>
 										</li>
 									</ul>
+									</c:if>
+								</c:forEach>
 							</div>
 						</div>
 						<div>
@@ -117,8 +130,10 @@
 			  	var client;
 			  	var chatBox = $(".box");
 			  	var memId = '${sessionScope.login.memId}';
+			  	var memNm = '${sessionScope.login.memNm}';
+			  	var profileImg = '${sessionScope.login.profileImg}'
 			  	var roomNo = '${roomNo}';
-			  	
+			  	scroll_down();
 			  	var sock = new SockJS("<c:url value='/endpoint' />");
 			  	client = Stomp.over(sock);
 			  	console.log(client);
@@ -132,8 +147,9 @@
 			  				var html = "<div class='notification'>" + body.message + "</div>";
 			  				$("#list-guestbook").append(html);
 			  			}else{
-			  				console.log(body);
+			  				$("#list-guestbook").append(renderList(body));
 			  			}
+			  			scroll_down();
 			  		});
 			  	});
 			  	
@@ -143,16 +159,47 @@
 			    	if(msg == "") {
 			    		return false;
 			    	}
-			    	alert(msg);
-			    	
+			 
 			    	client.send("/app/hello/" + roomNo, {}, JSON.stringify({
-			    		"chatMsg" : msg
-			    		,"memId" : memId
-			    		,"roomNo" : roomNo
+			    		chatMsg : msg
+			    		,memId : memId
+			    		,roomNo : roomNo
+			    		,memNm : memNm
+			    		,profileImg : profileImg
 			    	}));
 			    	
 			    	$("#msgi").val('');
 			    }
+			    // 메세지 출력
+			    function renderList(vo){
+			    	var str = "";
+			    	var content = "";
+
+			    	// 내가 보낸 내용
+			    	if(vo.memId == memId){
+			    		content = "<p class='myChat chat-box text-left p-3'>"+ vo.chatMsg +"</p>"
+			    		str = "<li data-no='' class='me pr-2'>"
+							  +"<strong class=''>"+ vo.memId +"("+vo.memNm+")" +"</strong>"
+							  +"<img src='" + vo.profileImg + "' class='rounded-circle img-thumbnail shadow-sm' width='50' style='cursor: pointer;'>"
+							  +"<div class='me'>" + content
+							  +"</div>"
+							  +"<strong style='display : inline;' class='align-self-end'>"+vo.sendDate+"</strong>"
+					          +"</li> ";
+			    	// 다른 사람
+			    	}else{
+			    		content = "<p class='chat-box bg-light p-3'>"+ vo.chatMsg +"</p>"
+			    		str = "<li data-no='' class='pr-2'>"
+							  +"<strong class=''>"+ vo.memId +"("+vo.memNm+")" +"</strong>"
+							  +"<img src='" + vo.profileImg + "' class='rounded-circle img-thumbnail shadow-sm' width='50' style='cursor: pointer;'>"
+							  +"<div>" + content
+						      +"</div> "
+							  +"<strong style='display : inline;' class='align-self-end'>"+vo.sendDate+"</strong>"
+					          +"</li> ";
+			    		
+			    	}
+			    	return str;
+			    }
+			    
 			    $("#btnSend").click(function(){
 			    	sendmsg();
 			    });
@@ -161,14 +208,29 @@
 			    		sendmsg();
 			    	}
 			    });
-			    //메세지 출력
-			    function renderList(vo){
+			    $("#btnOut").click(function(){
+			    	disconnect();
+			    	location.href="<c:url value='/chatListView' />";
+			    });
+			    // 창을 나갈떄 이벤트 리스너
+			    window.onbeforeunload = function(){
+			    	disconnect();
 			    }
 			    //나가기
 			    function disconnect(){
+			    	if(client != null){
+			    		// 종료 직전 메세지를 방 참여자들에게~
+			    		client.send("/subscribe/chat/"+ roomNo, {}, JSON.stringify({
+			    			"type" : "notification",
+			    			"message" : memId + "님이 나가셨습니다.."
+			    		}));
+			  			client.disconnect();
+			    	}
 			    }
-			    //최초 연결이 맺어지면 실행
-			    // 메세지 전송 버튼 클릭시
+			    //스크롤
+			    function scroll_down(){
+			    	$(".chatcontent").scrollTop($(".chatcontent")[0].scrollHeight);
+			    }
 		  });
 		</script>
     </body>
